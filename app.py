@@ -279,6 +279,21 @@ def analyze(symbol):
         bearish_fractal
     ) = candidates[-1]
 
+    # LIVE MODE: only act when Candle #4 is the latest CLOSED candle.
+    # This prevents an old historical fractal setup from being returned
+    # repeatedly as the current signal.
+    if entry_index != closed_last:
+        return {
+            "system": "FR-KING",
+            "symbol": symbol,
+            "timeframe": "1 minute",
+            "signal": "WAIT",
+            "reason": "No current Candle #4 setup",
+            "fractal_period": 2,
+            "auto_mtg": False,
+            "mtg": "MANUAL ONLY"
+        }
+
     entry = df.iloc[entry_index]
 
     st1 = float(entry["st_10_3"])
