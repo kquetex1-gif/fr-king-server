@@ -378,7 +378,44 @@ def home():
         "auto_mtg": False
     })
 
+@app.route("/candles")
+def candles():
+    symbol = request.args.get(
+        "symbol",
+        "EUR/USD"
+    ).upper()
 
+    try:
+        df = get_candles(symbol)
+
+        # Recent 30 real 1-minute candles
+        chart_df = df.tail(30)
+
+        candle_list = []
+
+        for _, row in chart_df.iterrows():
+            candle_list.append({
+                "datetime": str(row["datetime"]),
+                "open": float(row["open"]),
+                "high": float(row["high"]),
+                "low": float(row["low"]),
+                "close": float(row["close"])
+            })
+
+        return jsonify({
+            "system": "FR-KING",
+            "symbol": symbol,
+            "timeframe": "1 minute",
+            "count": len(candle_list),
+            "candles": candle_list
+        })
+
+    except Exception as e:
+        return jsonify({
+            "system": "FR-KING",
+            "symbol": symbol,
+            "error": str(e)
+        }), 500
 @app.route("/signal")
 def signal():
     symbol = request.args.get(
